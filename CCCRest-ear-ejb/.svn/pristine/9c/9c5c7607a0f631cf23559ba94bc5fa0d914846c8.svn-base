@@ -1,0 +1,322 @@
+package uk.ac.ncl.dao;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import uk.ac.ncl.user.User;
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.resource.Resources;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.Right;
+import uk.ac.ncl.state.ROPState.RightState;
+import uk.ac.ncl.state.ROPState.ObligationState;
+import uk.ac.ncl.state.ROPState.ProhibitionState;
+
+@Stateless
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
+public class UserManagerImpl implements UserManager
+{
+	@PersistenceContext(unitName = "RopePU")
+	private EntityManager em;
+	
+	public UserManagerImpl()
+	{
+		em=Resources.getEntityManager();
+	}
+
+	@Override
+	public void store(User user)
+	{
+		em.persist(user);
+	}
+
+	@Override
+	public User query(String name)
+	{
+		try
+		{
+			final String jpaQlQuery = "SELECT e FROM "
+					+ User.class.getSimpleName() + " e WHERE e.name=:name";
+			Query q = em.createQuery(jpaQlQuery);
+			q.setParameter("name", name);
+			User user = (User) q.getSingleResult();
+			return user;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public void remove(User user)
+	{
+		em.remove(user);
+
+	}
+
+	@Override
+	public void addRight(User user, Right right)
+	{
+		Set<Right> userRight = user.getRight();
+		right.setState(RightState.granted);
+		userRight.add(right);
+	}
+
+	@Override
+	public void addObligation(User user, Obligation obligation)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		obligation.setState(ObligationState.imposed);
+		userObligation.add(obligation);
+	}
+
+	@Override
+	public void addProhibition(User user, Prohibition prohibition)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		prohibition.setState(ProhibitionState.imposed);
+		userProhibition.add(prohibition);
+	}
+
+	@Override
+	public boolean deleteRight(User user, Right right)
+	{
+		Set<Right> userRight = user.getRight();
+		Iterator<Right> iter = userRight.iterator();
+		while (iter.hasNext())
+		{
+			Right result = iter.next();
+			if (right.equals(result))
+			{
+				iter.remove();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteObligation(User user, Obligation obligation)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		Iterator<Obligation> iter = userObligation.iterator();
+		while (iter.hasNext())
+		{
+			Obligation result = iter.next();
+			if (obligation.equals(result))
+			{
+				iter.remove();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteProhibition(User user, Prohibition prohibition)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		Iterator<Prohibition> iter = userProhibition.iterator();
+		while (iter.hasNext())
+		{
+			Prohibition result = iter.next();
+			if (prohibition.equals(result))
+			{
+				iter.remove();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public Right getRight(User user, Operation operation)
+	{
+		Set<Right> userRight = user.getRight();
+		for (Right right : userRight)
+		{
+			Set<Operation> operationSet = right.getOperation();
+			for (Operation result : operationSet)
+			{
+				if (result.contain(operation))
+					return right;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Obligation getObligation(User user, Operation operation)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		for (Obligation obligation : userObligation)
+		{
+			Set<Operation> operationSet = obligation.getOperation();
+			for (Operation result : operationSet)
+			{
+				if (result.contain(operation))
+					return obligation;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Prohibition getProhibition(User user, Operation operation)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		for (Prohibition prohibition : userProhibition)
+		{
+			Set<Operation> operationSet = prohibition.getOperation();
+			for (Operation result : operationSet)
+			{
+				if (result.contain(operation))
+					return prohibition;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public boolean changeRight(User user, Right right, RightState state)
+	{
+		Set<Right> userRight = user.getRight();
+		for (Right result : userRight)
+		{
+			if (right.equals(result))
+			{
+				boolean verdict = false;
+				switch ((RightState) result.getState())
+				{
+				case granted:
+					if (state == RightState.executing)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					break;
+				case executing:
+					if (state == RightState.fulfilled)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					else if (state == RightState.granted)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					break;
+				case fulfilled:
+					if (state == RightState.granted)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					break;
+				default:
+					break;
+				}
+				return verdict;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean changeObligation(User user, Obligation obligation,
+			ObligationState state)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		for (Obligation result : userObligation)
+		{
+			if (obligation.equals(result))
+			{
+				boolean verdict = false;
+				switch ((ObligationState) result.getState())
+				{
+				case imposed:
+					if (state == ObligationState.executing)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					break;
+				case executing:
+					if (state == ObligationState.fulfilled)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					else if (state == ObligationState.imposed)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					break;
+				case fulfilled:
+					if (state == ObligationState.imposed)
+					{
+						result.setState(state);
+						verdict = true;
+					}
+					break;
+				default:
+					break;
+				}
+				return verdict;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean changeProhibition(User user, Prohibition prohibition,
+			ProhibitionState state)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		for (Prohibition result : userProhibition)
+		{
+			if (prohibition.equals(result))
+			{
+				boolean verdict = false;
+				switch ((ProhibitionState) result.getState())
+				{
+				case imposed:
+					if (state == ProhibitionState.executing)
+					{
+						prohibition.setState(state);
+						verdict = true;
+					}
+					break;
+				case executing:
+					if (state == ProhibitionState.imposed)
+					{
+						prohibition.setState(state);
+						verdict = true;
+					}
+					else if (state == ProhibitionState.violated)
+					{
+						prohibition.setState(state);
+						verdict = true;
+					}
+					break;
+				default:
+					break;
+				}
+				return verdict;
+			}
+		}
+		return false;
+	}
+}

@@ -1,0 +1,82 @@
+package uk.ac.ncl.dao;
+
+import java.util.TimerTask;
+
+import javax.ejb.Stateful;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ncl.resource.Resources;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.RopEntity;
+import uk.ac.ncl.state.ROPState;
+import uk.ac.ncl.state.ROPState.ObligationState;
+import uk.ac.ncl.state.ROPState.ProhibitionState;
+import uk.ac.ncl.user.User;
+
+@Stateful
+@Transactional
+public class Deadline extends TimerTask
+{
+	private RopEntity<? extends ROPState> rop;
+	
+	@PersistenceContext(unitName = "RopePU")
+	private EntityManager em;
+
+	public Deadline()
+	{
+		em= Resources.getEntityManager();
+	}
+
+	public Deadline(RopEntity<? extends ROPState> rop)
+	{
+		this.rop = rop;
+		em= Resources.getEntityManager();
+	}
+
+	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void run()
+	{
+		User user = new User("zhao", "belldandy", "PI", null, null, null);
+		em.persist(user);
+		em.flush();
+		System.out.println("The obligation: " + " has been expired!");
+		/*
+		if (rop instanceof Obligation)
+		{
+			Obligation obligation = (Obligation) rop;
+			if (obligation.getState() == ObligationState.imposed)
+			{
+				//Obligation obligationEntity = em.merge(obligation);
+				//obligationEntity.setState(ObligationState.violated);
+				//em.persist(obligation);
+				User user = new User("zhao", "belldandy", "PI", null, null, null);
+				userManager.store(user);
+				System.out.println("The obligation: " + obligation.getName()
+						+ " has been expired!");
+			}
+		}
+		else if (rop instanceof Prohibition)
+		{
+			Prohibition prohibition = (Prohibition) rop;
+			if (prohibition.getState() == ProhibitionState.imposed)
+			{
+				prohibition.setState(ProhibitionState.expired);
+			
+
+				System.out.println("The prohibition: " + prohibition.getName()
+						+ " has been expired!");
+			}
+
+		}*/
+	}
+}

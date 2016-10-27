@@ -1,0 +1,6 @@
+package uk.ac.ncl.resource;
+
+public enum Status 
+{
+	inactive, pending, active;
+}

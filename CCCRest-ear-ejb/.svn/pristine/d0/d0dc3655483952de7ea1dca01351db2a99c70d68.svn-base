@@ -1,0 +1,33 @@
+package uk.ac.ncl.rop;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import uk.ac.ncl.resource.Operation;
+import uk.ac.ncl.resource.Status;
+
+@Entity
+@Table(name = "UserRight")
+public class Right extends RopEntity implements Serializable
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6031505480282101097L;
+
+	public Right()
+	{
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Right(Operation operation, String name, String type, Status status)
+	{
+		super(operation, name, type, status);
+		// TODO Auto-generated constructor stub
+	}
+
+
+}

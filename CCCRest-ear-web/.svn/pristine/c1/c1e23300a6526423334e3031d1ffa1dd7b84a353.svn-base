@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<mvc:annotation-driven />
+	<tx:annotation-driven/>
+	<context:annotation-config />
+	<context:component-scan base-package="uk.ac.ncl" />
+
+	<!-- Resolves view names to protected .jsp resources within the /WEB-INF/views 
+		directory -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<bean id ="UserBo" class="uk.ac.ncl.userBo.UserBoImpl"/>
+    <bean id ="UserManager" class="uk.ac.ncl.dao.UserManagerImpl" />
+    <bean id ="ProjectBo" class="uk.ac.ncl.projectBo.ProjectBoImpl"/>
+    <bean id ="ProjectManager" class="uk.ac.ncl.dao.ProjectManagerImpl"/>
+    <bean id ="DataBo" class="uk.ac.ncl.dataBo.DataBoImpl"/>
+	<bean id ="DataManager" class="uk.ac.ncl.dao.DataManagerImpl" />
+	<bean id ="CCCengine" class="uk.ac.ncl.core.CCCengine" />
+    <bean id ="Engine" class="uk.ac.ncl.engine.Engine" />
+    <!-- bean id ="DataChecker" class="uk.ac.ncl.checker.DataCheckerImpl" /-->
+    
+	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
+	<!-- bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean"> 
+		<property name="persistenceUnitName" value="RopePU" /> </bean -->
+
+	<jee:jndi-lookup id="RopePU" jndi-name="persistence/RopePU" />
+
+	<bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"/>
+	
+
+</beans>

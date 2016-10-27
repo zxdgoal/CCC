@@ -1,0 +1,348 @@
+package uk.ac.ncl.web;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import uk.ac.ncl.engine.Engine;
+import uk.ac.ncl.dataBo.DataBo;
+import uk.ac.ncl.erop.DateParser;
+import uk.ac.ncl.model.Data;
+import uk.ac.ncl.resource.Operation;
+import uk.ac.ncl.user.User;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@Controller
+@RequestMapping("/data/*")
+public class DataController
+{
+	private DataBo db;
+	private Engine engine;
+
+	/*
+	 * private javax.transaction.TransactionManager transactionManager =
+	 * com.arjuna.ats.jta.TransactionManager .transactionManager(); private
+	 * javax.transaction.UserTransaction userTransaction = new
+	 * ServerVMClientUserTransaction( transactionManager);
+	 */
+
+	@Autowired
+	public void SetEngine(Engine engine)
+	{
+		this.engine = engine;
+	}
+
+	@Autowired
+	public void setDataBo(DataBo db)
+	{
+		this.db = db;
+	}
+
+	@RequestMapping(value = { "/store" }, method = { RequestMethod.GET })
+	public String store(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			return "store";
+		}
+	}
+
+	@RequestMapping(value = { "/update" }, method = { RequestMethod.GET })
+	public String update(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			return "update";
+		}
+	}
+
+	@RequestMapping(value = { "/dependency" }, method = { RequestMethod.GET })
+	public String dependency(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			return "dependency";
+		}
+	}
+
+	@RequestMapping(value = { "/remove" }, method = { RequestMethod.GET })
+	public String remove(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			return "remove";
+		}
+	}
+
+	@Transactional(rollbackFor = RuntimeException.class)
+	@RequestMapping(value = { "/store" }, method = { RequestMethod.POST }, params = {
+			"name", "size" })
+	public String store(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			String sizeStr = req.getParameter("size");
+			Boolean verdict = engine.storeRule(username, name);
+			if (verdict)
+			{
+				try
+				{
+					Long size = Long.parseLong(sizeStr);
+					db.create(name, username, size);
+					engine.success(Operation.storeSuccess);
+					return "success";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					engine.fail(Operation.storeFail);
+					return "fail";
+				}
+			}
+			else
+			{
+				return "fail";
+			}
+		}
+	}
+
+	@Transactional
+	@RequestMapping(value = { "/update" }, method = { RequestMethod.POST }, params = {
+			"name", "date" })
+	public String update(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			String dateStr = req.getParameter("date");
+			Boolean verdict = engine.updateRule(username, name, dateStr);
+			if (verdict)
+			{
+				try
+				{
+					Date date = DateParser.simpleParse(dateStr);
+					db.update(name, date);
+					engine.success(Operation.updateSuccess);
+					return "success";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					engine.fail(Operation.updateFail);
+					return "fail";
+				}
+			}
+			else
+			{
+				return "fail";
+			}
+		}
+	}
+
+	@Transactional
+	@RequestMapping(value = { "/retrieve" }, method = { RequestMethod.POST }, params = { "name" })
+	public String retrieve(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			Boolean verdict = engine.retrieveRule(username, name);
+			if (verdict)
+			{
+				try
+				{
+					Data data = db.retrieve(name);
+					resp.setHeader("name", data.getName());
+					resp.setHeader("size", data.getSize().toString());
+					resp.setHeader("publish",
+							DateParser.simpleFormat(data.getPublish()));
+					resp.setHeader("lastVisit", data.getLastVisit().toString());
+					for (String result : data.getRawData())
+					{
+						resp.addHeader("rawdata", result);
+					}
+					for (String result : data.getSoftware())
+					{
+						resp.addHeader("software", result);
+					}
+					engine.success(Operation.retrieveSuccess);
+					return "dataInfo";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					engine.fail(Operation.retrieveFail);
+					return "fail";
+				}
+			}
+			else
+			{
+				return "fail";
+			}
+		}
+	}
+
+	@Transactional
+	@RequestMapping(value = { "/dependency" }, method = { RequestMethod.POST }, params = {"name", "rawdata", "software" })
+	public String addDependency(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			String[] rawdataArray = req.getParameterValues("rawdata");
+			String[] softwareArray = req.getParameterValues("software");
+			List<String> rawdata = removeNull(rawdataArray);
+			List<String> software = removeNull(softwareArray);
+			for (String result : rawdata)
+			{
+				Boolean verdict = engine.addDependencyRule(username, name,
+						result);
+				if (verdict)
+				{
+					try
+					{
+						db.addDependency(name, "data", result);
+						engine.success(Operation.addDependencySuccess);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+						engine.fail(Operation.addDependencyFail);
+						return "fail";
+					}
+				}
+			}
+			for (String result : software)
+			{
+				Boolean verdict = engine.addDependencyRule(username, name,
+						result);
+				if (verdict)
+				{
+					try
+					{
+						db.addDependency(name, "software", result);
+						engine.success(Operation.addDependencySuccess);
+
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+						engine.fail(Operation.addDependencyFail);
+						return "fail";
+					}
+				}
+			}
+			return "success";
+		}
+	}
+
+	@Transactional
+	@RequestMapping(value = { "/remove" }, method = { RequestMethod.POST }, params = { "name" })
+	public String remove(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "fail";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			Boolean verdict = engine.removeRule(username, name);
+			if (verdict)
+			{
+				try
+				{
+					db.delete(name);
+					engine.success(Operation.removeSuccess);
+					return "success";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					engine.fail(Operation.removeFail);
+					return "fail";
+				}
+			}
+			else
+			{
+				return "fail";
+			}
+		}
+	}
+
+	private static List<String> removeNull(String[] array)
+	{
+		List<String> answer = new ArrayList<String>();
+		for (String result : array)
+		{
+			if (result.length() != 0)
+			{
+				answer.add(result);
+			}
+		}
+		return answer;
+	}
+
+}

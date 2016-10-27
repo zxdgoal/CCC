@@ -1,0 +1,151 @@
+package uk.ac.ncl.engine;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import uk.ac.ncl.core.CCCengine;
+import uk.ac.ncl.model.Event;
+import uk.ac.ncl.model.Operation;
+import uk.ac.ncl.model.Operation.Name;
+import uk.ac.ncl.response.CCCResponse;
+
+public class Engine
+{
+	private CCCengine engine;
+	private Event event;
+	private final String type = "data";
+
+	@Autowired
+	public void setCCCengine(CCCengine engine)
+	{
+		this.engine = engine;
+	}
+
+	public Boolean storeRule(String user, String objectName)
+	{
+		Operation operation = new Operation(Name.store, type, objectName);
+		Event event = new Event(user, operation);
+		this.event = event;
+		CCCResponse response = engine.run(event);
+		return response.getContractCompliant();
+	}
+
+	public Boolean addDependencyRule(String user, String objectName)
+	{
+		Operation operation = new Operation(Name.addDependency, type,
+				objectName);
+		Event event = new Event(user, operation);
+		this.event = event;
+		CCCResponse response = engine.run(event);
+		return response.getContractCompliant();
+	}
+
+	public Boolean updateRule(String user, String objectName)
+	{
+		Operation operation = new Operation(Name.update, type, objectName);
+		Event event = new Event(user, operation);
+		this.event = event;
+		CCCResponse response = engine.run(event);
+		return response.getContractCompliant();
+	}
+
+	public Boolean retrieveRule(String user, String objectName)
+	{
+		Operation operation = new Operation(Name.retrieve, type, objectName);
+		Event event = new Event(user, operation);
+		this.event = event;
+		CCCResponse response = engine.run(event);
+		return response.getContractCompliant();
+	}
+
+	public Boolean removeRule(String user, String objectName)
+	{
+		Operation operation = new Operation(Name.remove, type, objectName);
+		Event event = new Event(user, operation);
+		this.event = event;
+		CCCResponse response = engine.run(event);
+		return response.getContractCompliant();
+	}
+
+	public void success() 
+	{
+		Name operationName = this.event.getOperation().getName();
+		Operation operation;
+		switch (operationName)
+		{
+		case store:
+			operation = new Operation(Name.storeSuccess, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case remove:
+			operation = new Operation(Name.removeSuccess, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case addDependency:
+			operation = new Operation(Name.addDependencySuccess, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case update:
+			operation = new Operation(Name.updateSuccess, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case retrieve:
+			operation = new Operation(Name.retrieveSuccess, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		default: operation= null;
+			break;
+		}
+		Event event = new Event(this.event.getUser(), operation);
+		engine.run(event);
+		this.reset();
+	}
+
+	public void fail()
+	{
+		Name operationName = this.event.getOperation().getName();
+		Operation operation;
+		switch (operationName)
+		{
+		case store:
+			operation = new Operation(Name.storeFail, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case remove:
+			operation = new Operation(Name.removeFail, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case addDependency:
+			operation = new Operation(Name.addDependencyFail, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case update:
+			operation = new Operation(Name.updateFail, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		case retrieve:
+			operation = new Operation(Name.retrieveFail, this.event
+					.getOperation().getType(), this.event.getOperation()
+					.getObject());
+			break;
+		default: operation= null;
+		}
+		Event event = new Event(this.event.getUser(), operation);
+		engine.run(event);
+		this.reset();
+	}
+
+	private void reset()
+	{
+		this.event = null;
+	}
+
+}

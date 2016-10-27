@@ -1,0 +1,53 @@
+package uk.ac.ncl.rop;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.state.ROPState.ObligationState;
+
+@Entity
+@Table(name="CompositeObligation")
+public class CompositeObligation extends RopEntity<ObligationState> implements Serializable 
+{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5471138869001810547L;
+	
+	@ElementCollection
+	@Embedded
+	List<Operation> operations;
+	
+	public CompositeObligation()
+	{
+		super();
+	}
+
+	public CompositeObligation(Operation operation, ObligationState status, List<Operation> operations)
+	{
+		super(operation, status);
+		this.operations = operations;
+		// TODO Auto-generated constructor stub
+	}
+
+	public List<Operation> getOperations()
+	{
+		return operations;
+	}
+
+	public void setOperations(List<Operation> operations)
+	{
+		this.operations = operations;
+	}
+	
+	
+}

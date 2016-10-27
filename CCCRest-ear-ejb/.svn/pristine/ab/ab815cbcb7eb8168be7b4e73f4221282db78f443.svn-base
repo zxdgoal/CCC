@@ -1,0 +1,6 @@
+package uk.ac.ncl.status;
+
+public enum ObligationStatus implements Status
+{
+	imposed, executing, completed;
+}

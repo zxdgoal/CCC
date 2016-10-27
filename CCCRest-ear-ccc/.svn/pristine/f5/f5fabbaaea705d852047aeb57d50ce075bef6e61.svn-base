@@ -1,0 +1,51 @@
+package uk.ac.ncl.ropManager;
+
+import uk.ac.ncl.event.Event;
+
+public interface RopManager
+{
+	String getRole(String username) throws Exception;
+
+	boolean hasRight(Event event);
+
+	boolean hasObligation(Event event);
+
+	boolean hasProhibition(Event event);
+
+	void executeRight(Event event) throws Exception;
+
+	void executeObligation(Event event)
+			throws Exception;
+
+	void executeProhibition(Event event)
+			throws Exception;
+	
+    void rollbackRight(Event event)
+		        throws Exception;
+	
+	void rollbackObligation(Event event)
+			throws Exception;
+	
+    void rollbackProhibition(Event event)
+			throws Exception;
+
+	void grantRight(Event event) throws Exception;
+
+	void imposeObligation(Event event)
+			throws Exception;
+
+	void imposeProhibition(Event event)
+			throws Exception;
+
+	void removeRight(Event event) throws Exception;
+	
+	void removeObligation(Event event) throws Exception;
+	
+	void removeProhibition(Event event) throws Exception;
+
+	void completeObligation(Event event)
+			throws Exception;
+
+	void completeProhibition(Event event)
+			throws Exception;
+}

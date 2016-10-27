@@ -1,0 +1,47 @@
+package uk.ac.ncl.ropManager;
+
+import uk.ac.ncl.model.Operation;
+
+public interface RopManager
+{
+	String getRole(String username) throws Exception;
+
+	boolean hasRight(String username, Operation operation);
+
+	boolean hasObligation(String username, Operation operation);
+
+	boolean hasProhibition(String username, Operation operation);
+
+	void executeRight(String username, Operation operation) throws Exception;
+
+	void executeObligation(String username, Operation operation)
+			throws Exception;
+
+	void executeProhibition(String username, Operation operation)
+			throws Exception;
+	
+    void rollbackRight(String username, Operation operation)
+		        throws Exception;
+	
+	void rollbackObligation(String username, Operation operation)
+			throws Exception;
+	
+    void rollbackProhibition(String username, Operation operation)
+			throws Exception;
+
+	void grantRight(String username, Operation operation) throws Exception;
+
+	void imposeObligation(String username, Operation operation)
+			throws Exception;
+
+	void imposeProhibition(String username, Operation operation)
+			throws Exception;
+
+	void removeRight(String username, Operation operation) throws Exception;
+
+	void completeObligation(String username, Operation operation)
+			throws Exception;
+
+	void completeProhibition(String username, Operation operation)
+			throws Exception;
+}

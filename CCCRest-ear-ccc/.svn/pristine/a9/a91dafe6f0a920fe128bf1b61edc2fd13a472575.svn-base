@@ -1,0 +1,315 @@
+package uk.ac.ncl.ropManager;
+
+import java.util.List;
+
+import uk.ac.ncl.dao.UserManager;
+import uk.ac.ncl.dao.UserManagerImpl;
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.user.User;
+import uk.ac.ncl.rop.*;
+import uk.ac.ncl.status.ROPStatus.RightStatus;
+import uk.ac.ncl.status.ROPStatus.ObligationStatus;
+import uk.ac.ncl.status.ROPStatus.ProhibitionStatus;
+
+public class RopManagerImpl implements RopManager
+{
+	private UserManager userManager;
+
+	public RopManagerImpl()
+	{
+		userManager = new UserManagerImpl();
+	}
+
+	@Override
+	public String getRole(String username) throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			return user.getRole();
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void rollbackRight(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeRight(user, operation, RightStatus.executing,
+					RightStatus.granted);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void rollbackObligation(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeObligation(user, operation,
+					ObligationStatus.executing, ObligationStatus.imposed);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void rollbackProhibition(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeProhibition(user, operation,
+					ProhibitionStatus.executing, ProhibitionStatus.imposed);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void executeRight(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeRight(user, operation, RightStatus.granted,
+					RightStatus.executing);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+
+	@Override
+	public void executeObligation(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeObligation(user, operation,
+					ObligationStatus.imposed, ObligationStatus.executing);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void executeProhibition(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeProhibition(user, operation,
+					ProhibitionStatus.imposed, ProhibitionStatus.executing);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public boolean hasRight(String username, Operation operation)
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			return userManager.matchRight(user, operation, RightStatus.granted);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public boolean hasObligation(String username, Operation operation)
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			return userManager.matchObligation(user, operation,
+					ObligationStatus.imposed);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public boolean hasProhibition(String username, Operation operation)
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			return userManager.matchProhibition(user, operation,
+					ProhibitionStatus.imposed);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public void grantRight(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.addRight(user, operation);
+
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+
+	@Override
+	public void imposeObligation(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.addObligation(user, operation);
+		}
+		else
+		{
+			throw new Exception("No such user exist!");
+		}
+	}
+
+	@Override
+	public void imposeProhibition(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			List<Prohibition> userProhibition = user.getProhibition();
+			for (Prohibition result : userProhibition)
+			{
+				if (operation.equals(result.getOperation()))
+					throw new Exception("This right is already in the ROP set!");
+			}
+			Prohibition prohibition = new Prohibition(operation,
+					ProhibitionStatus.imposed);
+			userProhibition.add(prohibition);
+
+		}
+		else
+		{
+			throw new Exception("No such user exsit!");
+		}
+
+	}
+
+	@Override
+	public void completeObligation(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeObligation(user, operation,
+					ObligationStatus.executing, ObligationStatus.completed);
+
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+
+	@Override
+	public void completeProhibition(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.changeProhibition(user, operation,
+					ProhibitionStatus.executing, ProhibitionStatus.completed);
+
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void removeRight(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.deleteRight(user, operation);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void removeObligation(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.deleteObligation(user, operation);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void removeProhibition(String username, Operation operation)
+			throws Exception
+	{
+		User user = userManager.query(username);
+		if (user != null)
+		{
+			userManager.deleteProhibition(user, operation);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+}

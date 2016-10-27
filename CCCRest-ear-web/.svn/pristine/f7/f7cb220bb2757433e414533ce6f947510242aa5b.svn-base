@@ -1,0 +1,17 @@
+package uk.ac.ncl.dataBo;
+
+import java.util.Date;
+import uk.ac.ncl.model.Data;
+
+public interface DataBo
+{
+	public void create(String name, String username, Long size, String key) throws Exception;
+	
+	public Data query(String key) throws Exception;
+	
+	public void delete(String key) throws Exception;
+	
+	public void update(String key, Date publish) throws Exception;
+	
+	public void addDependency(String name, String type, String dependency)throws Exception;
+}

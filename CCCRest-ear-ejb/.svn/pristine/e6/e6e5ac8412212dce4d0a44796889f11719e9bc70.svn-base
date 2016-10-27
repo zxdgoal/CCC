@@ -1,0 +1,6 @@
+package uk.ac.ncl.status;
+
+public enum EventStatus implements Status 
+{
+	notExecuted ,succeed, failed
+}

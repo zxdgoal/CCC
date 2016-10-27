@@ -1,0 +1,12 @@
+package uk.ac.ncl.projectBo;
+
+import java.util.Date;
+import java.util.List;
+
+public interface ProjectBo
+{
+	public void create(String user, String name, Long size, Date closeOut);
+	public void delete(String name) throws Exception;
+	public void updateReport(List<String> name ,Date lastReport);
+}
+

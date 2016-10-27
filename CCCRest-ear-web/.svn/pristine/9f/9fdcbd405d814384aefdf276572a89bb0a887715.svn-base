@@ -1,0 +1,13 @@
+<html>
+<head>
+<title>Store</title>
+</head>
+<body>
+<h2>Input the information for the data to be stored</h2>
+<form name="form" method="post">
+<p>please input your data name:<input type="text" name="name"/></p>
+<p>please input your size:<input type="number" name="size"/></p>
+<p><input type="submit" value="store">   <input type="reset" value="clear"></p>
+</form>
+</body>
+</html>

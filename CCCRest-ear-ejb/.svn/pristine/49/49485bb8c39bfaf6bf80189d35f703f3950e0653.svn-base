@@ -1,0 +1,6 @@
+package uk.ac.ncl.status;
+
+public enum RightStatus implements Status
+{
+	granted, executing;
+}

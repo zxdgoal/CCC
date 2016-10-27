@@ -1,0 +1,52 @@
+package uk.ac.ncl.dao;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import uk.ac.ncl.resource.Resources;
+import uk.ac.ncl.user.User;
+
+public class UserManagerImpl implements UserManager
+{
+	@PersistenceContext(unitName = "RopePU")
+	private EntityManager em;
+
+	public UserManagerImpl()
+	{
+		em = Resources.getEntityManager();
+	}
+	
+	@Override
+	public void store(User user)
+	{
+		em.persist(user);
+	}
+
+	@Override
+	public User query(String name)
+	{
+		try
+		{
+			final String jpaQlQuery = "SELECT e FROM "
+					+ User.class.getSimpleName() + " e WHERE e.name=:name";
+			Query q = em.createQuery(jpaQlQuery);
+			q.setParameter("name", name);
+			User user= (User) q.getSingleResult();
+			return user;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public void remove(User user)
+	{
+		em.remove(user);
+
+	}
+
+}

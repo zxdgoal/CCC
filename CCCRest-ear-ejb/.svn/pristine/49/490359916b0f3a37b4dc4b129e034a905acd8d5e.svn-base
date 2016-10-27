@@ -1,0 +1,30 @@
+package uk.ac.ncl.rop;
+
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.state.ROPState.ProhibitionState;
+
+@Entity
+@Table(name = "UserProhibition")
+public class Prohibition extends RopEntity<ProhibitionState> implements
+		Serializable
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2821744163127245357L;
+
+	public Prohibition()
+	{
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Prohibition(Operation operation, ProhibitionState state)
+	{
+		super(operation, state);
+	}
+}

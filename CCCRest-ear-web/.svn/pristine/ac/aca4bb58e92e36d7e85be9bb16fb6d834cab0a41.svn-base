@@ -1,0 +1,378 @@
+package uk.ac.ncl.web;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+
+import uk.ac.ncl.event.Event;
+import uk.ac.ncl.event.EventStatus;
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.event.Operation.OperationName;
+import uk.ac.ncl.dataBo.DataBo;
+import uk.ac.ncl.model.Data;
+import uk.ac.ncl.response.CCCResponse;
+import uk.ac.ncl.user.User;
+import uk.ac.ncl.util.DateParser;
+import uk.ac.ncl.core.CCCEngine;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
+@Controller
+@RequestMapping("/data/*")
+public class DataController
+{
+	@Autowired
+	private DataBo db;
+	@Autowired
+	private CCCEngine engine;
+	
+	
+	private final String type = "data";
+	private Random generator = new Random();
+
+	/*
+	 * private javax.transaction.TransactionManager transactionManager =
+	 * com.arjuna.ats.jta.TransactionManager .transactionManager(); private
+	 * javax.transaction.UserTransaction userTransaction = new
+	 * ServerVMClientUserTransaction( transactionManager);
+	 */
+	
+	@RequestMapping(value = { "/store" }, method = { RequestMethod.GET })
+	public String store(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			return "store";
+		}
+	}
+
+	
+	@RequestMapping(value = { "/update" }, method = { RequestMethod.GET })
+	public String update(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			return "update";
+		}
+	}
+
+	
+	@RequestMapping(value = { "/dependency" }, method = { RequestMethod.GET })
+	public String dependency(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			return "dependency";
+		}
+	}
+
+	
+	@RequestMapping(value = { "/remove" }, method = { RequestMethod.GET })
+	public String remove(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			return "remove";
+		}
+	}
+
+	
+	@RequestMapping(value = { "/store" }, method = { RequestMethod.POST }, params = {
+			"name"})
+	public String store(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			Operation operation = new Operation(OperationName.store, type, name);
+			Event event = new Event(username, operation);
+			CCCResponse response = engine.run(event);
+			Boolean verdict = response.getContractCompliant();
+			if (verdict)
+			{
+				try
+				{
+					//Long size = Long.parseLong(sizeStr);
+					
+					int number = 10*generator.nextInt(1000);
+					/*if (number < 50)
+					{
+						throw new Exception(
+								"This exception is thrown deliberately!");
+					}*/
+					String URL="https://www.ncl.ac.uk/repository/"+name;
+					db.create(name, username, (long)number, URL);
+					//Thread.sleep(10000);
+					Event newEvent = new Event(username, operation);
+					newEvent.setStatus(EventStatus.succeed);
+					engine.run(newEvent);
+					return "success";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					event.setStatus(EventStatus.failed);
+					engine.run(event);
+					return "fail";
+				}
+			}
+			else
+			{
+				event.setStatus(EventStatus.notExecuted);
+				return "fail";
+			}
+		}
+	}
+
+	
+	@RequestMapping(value = { "/update" }, method = { RequestMethod.POST }, params = {
+			"name", "date" })
+	public String update(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			String dateStr = req.getParameter("date");
+			Operation operation = new Operation(OperationName.update, type,
+					name);
+			Event event = new Event(username, operation);
+			CCCResponse response = engine.run(event);
+			Boolean verdict = response.getContractCompliant();
+			if (verdict)
+			{
+				try
+				{
+					Date date = DateParser.simpleParse(dateStr);
+					db.update(name, date);
+					event.setStatus(EventStatus.succeed);
+					engine.run(event);
+					return "success";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					event.setStatus(EventStatus.failed);
+					engine.run(event);
+					return "fail";
+				}
+			}
+			else
+			{
+				event.setStatus(EventStatus.notExecuted);
+				return "fail";
+			}
+		}
+	}
+
+	
+	@RequestMapping(value = { "/retrieve" }, method = { RequestMethod.POST }, params = { "name" })
+	public String retrieve(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			Operation operation = new Operation(OperationName.retrieve, type,
+					name);
+			Event event = new Event(username, operation);
+			CCCResponse response = engine.run(event);
+			Boolean verdict = response.getContractCompliant();
+			if (verdict)
+			{
+				try
+				{
+					Data data = db.retrieve(name);
+					resp.setHeader("name", data.getName());
+					resp.setHeader("size", data.getSize().toString());
+					resp.setHeader("publish",
+							DateParser.simpleFormat(data.getPublish()));
+					resp.setHeader("lastVisit", data.getLastVisit().toString());
+					for (String result : data.getRawData())
+					{
+						resp.addHeader("rawdata", result);
+					}
+					for (String result : data.getSoftware())
+					{
+						resp.addHeader("software", result);
+					}
+					event.setStatus(EventStatus.succeed);
+					engine.run(event);
+					return "dataInfo";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					event.setStatus(EventStatus.failed);
+					engine.run(event);
+					return "fail";
+				}
+			}
+			else
+			{
+				event.setStatus(EventStatus.notExecuted);
+				return "fail";
+			}
+		}
+	}
+
+	
+	@RequestMapping(value = { "/dependency" }, method = { RequestMethod.POST }, params = {
+			"name", "rawdata", "software" })
+	public String addDependency(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			Operation operation = new Operation(OperationName.addDependency,
+					type, name);
+			Event event = new Event(username, operation);
+			CCCResponse response = engine.run(event);
+			Boolean verdict = response.getContractCompliant();
+			if (verdict)
+			{
+				try
+				{
+					String[] rawdataArray = req.getParameterValues("rawdata");
+					String[] softwareArray = req.getParameterValues("software");
+					List<String> rawdata = removeNull(rawdataArray);
+					List<String> software = removeNull(softwareArray);
+					for (String result : rawdata)
+						db.addDependency(name, type, result);
+					for (String result : software)
+						db.addDependency(name, "software", result);
+					event.setStatus(EventStatus.succeed);
+					engine.run(event);
+					return "success";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					event.setStatus(EventStatus.failed);
+					engine.run(event);
+					return "fail";
+				}
+			}
+			else
+			{
+				event.setStatus(EventStatus.notExecuted);
+				return "fail";
+			}
+
+		}
+	}
+
+	
+	@RequestMapping(value = { "/remove" }, method = { RequestMethod.POST }, params = { "name" })
+	public String remove(HttpServletRequest req, HttpServletResponse resp)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			User user = (User) session.getAttribute("user");
+			String username = user.getName();
+			String name = req.getParameter("name");
+			Operation operation = new Operation(OperationName.remove, type,
+					name);
+			Event event = new Event(username, operation);
+			CCCResponse response = engine.run(event);
+			Boolean verdict = response.getContractCompliant();
+			if (verdict)
+			{
+				try
+				{
+					db.delete(name);
+					event.setStatus(EventStatus.succeed);
+					engine.run(event);
+					return "success";
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					event.setStatus(EventStatus.failed);
+					engine.run(event);
+					return "fail";
+				}
+			}
+			else
+			{
+				event.setStatus(EventStatus.notExecuted);
+				return "fail";
+			}
+		}
+	}
+
+	private static List<String> removeNull(String[] array)
+	{
+		List<String> answer = new ArrayList<String>();
+		for (String result : array)
+		{
+			if (result.length() != 0)
+			{
+				answer.add(result);
+			}
+		}
+		return answer;
+	}
+
+}

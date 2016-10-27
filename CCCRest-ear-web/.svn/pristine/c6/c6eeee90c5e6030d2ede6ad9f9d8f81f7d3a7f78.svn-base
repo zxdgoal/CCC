@@ -1,0 +1,72 @@
+package uk.ac.ncl.userBo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import uk.ac.ncl.dao.UserManager;
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.event.Operation.OperationName;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.Right;
+import uk.ac.ncl.status.ROPStatus.RightStatus;
+import uk.ac.ncl.user.User;
+
+public class UserBoImpl implements UserBo
+{
+	private UserManager um;
+	
+	@Autowired
+	public void SetUserManager(UserManager um)
+	{
+		this.um= um;
+	}
+	
+	@Override
+	public User create(String username, String password, String role)
+	{
+		final String Anyone= "ANYONE";
+		Operation operationOne = new Operation(OperationName.store, "data", Anyone);
+		Right dataRight= new Right(operationOne, RightStatus.granted);
+		Operation operationTwo = new Operation(OperationName.store, "project", Anyone);
+		Right projectRight= new Right(operationTwo, RightStatus.granted);
+		List<Right> userRight = new ArrayList<Right>();
+		userRight.add(dataRight);
+		userRight.add(projectRight);
+		User user = new User(username, password, role, userRight, new ArrayList<Obligation>(), new ArrayList<Prohibition>());
+		um.store(user);
+		return user;
+	}
+
+	@Override
+	public void delete(String username) throws Exception
+	{
+	    User user = um.query(username);
+	    if (user != null)
+	    {
+	        um.remove(user);
+	    }
+	    else
+	    {
+	    	throw new Exception("The user does not exsit!");
+	    }
+
+	}
+
+	@Override
+	public User get(String username) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			return user;
+		}
+		else
+		{
+			throw new Exception("The user does not exsit!");
+		}
+	}
+
+}

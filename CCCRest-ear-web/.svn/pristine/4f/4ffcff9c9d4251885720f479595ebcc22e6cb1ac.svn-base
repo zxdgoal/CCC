@@ -1,0 +1,116 @@
+package uk.ac.ncl.dataBo;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import uk.ac.ncl.dao.DataManager;
+import uk.ac.ncl.model.Data;
+
+public class DataBoImpl implements DataBo
+{
+	@Autowired
+	private DataManager dataManager;
+
+	@Override
+	public void create(String name, String user, Long size, String URL) throws Exception
+	{
+		final String Anyone = "ANYONE";
+		if (name.equals(Anyone))
+		{
+			throw new Exception("Invalid name!!!");
+		}
+		try
+		{
+			Data data = new Data(name, user, size, null, new Date(), URL, null, null);
+			dataManager.store(data);
+		}
+		catch (Exception e)
+		{
+			throw new Exception("Creating data fails!");
+		}
+	}
+
+	@Override
+	public void delete(String name) throws Exception
+	{
+		Data data = dataManager.query(name);
+		if (data != null)
+		{
+			dataManager.remove(data);
+		}
+		else
+		{
+			throw new Exception("This data does not exsist!");
+		}
+	}
+
+	@Override
+	public void update(String name, Date publish) throws Exception
+	{
+		Data data = dataManager.query(name);
+		if (data != null)
+		{
+			data.setPublish(publish);
+		}
+		else
+		{
+			throw new Exception("This data does not exsist!");
+		}
+	}
+
+	@Override
+	public void addDependency(String name, String type, String dependency)
+			throws Exception
+	{
+		Data data = dataManager.query(name);
+		if (data != null)
+		{
+			if (type == "data")
+			{
+				List<String> rawData = data.getRawData();
+				rawData.add(dependency);
+				data.setRawData(rawData);
+				dataManager.store(data);
+			}
+			else if (type == "software")
+			{
+				List<String> software = data.getSoftware();
+				software.add(dependency);
+				data.setSoftware(software);
+				dataManager.store(data);
+			}
+			else
+			{
+				throw new Exception("This type does not exsist!");
+			}
+		}
+		else
+		{
+			throw new Exception("This data does not exsist!");
+		}
+
+	}
+
+	@Override
+	public Data retrieve(String name) throws Exception
+	{
+		Data data = dataManager.query(name);
+		if (data != null)
+		{
+			/*
+			return new Data(data.getName(), data.getUser(), data.getSize(),
+					data.getPublish(), data.getLastVisit(), data.getRawData(),
+					data.getSoftware());
+					*/
+			return data;
+		}
+		else
+		{
+			throw new Exception("The data does not exist!");
+		}
+
+	}
+
+}

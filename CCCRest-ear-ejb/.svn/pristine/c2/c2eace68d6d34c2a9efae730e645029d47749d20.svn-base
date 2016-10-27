@@ -1,0 +1,31 @@
+package uk.ac.ncl.event;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import uk.ac.ncl.event.Operation.OperationName;
+import uk.ac.ncl.rop.Right;
+
+public class Test
+{
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args)
+	{
+		Operation one = new Operation(OperationName.upload, "data", "1234");
+		Operation two = new Operation(OperationName.upload, "data", "ANYTHING");
+		Operation three = new Operation(OperationName.upload, "data", "3333");
+		System.out.println(one.equals(two));
+		Set<Operation> setOne= new HashSet<Operation>();
+		Set<Operation> setTwo= new HashSet<Operation>();
+		setOne.add(one);
+		setOne.add(three);
+		setTwo.add(two);
+		System.out.println(two.contain(one));
+		Right rightOne=new Right("haha",setOne);
+		Right rightTwo= new Right("asdd",setTwo);
+		}
+
+}

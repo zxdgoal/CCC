@@ -1,0 +1,72 @@
+package uk.ac.ncl.dao;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import uk.ac.ncl.model.Project;
+import uk.ac.ncl.resource.Resources;
+
+public class ProjectManagerImpl implements ProjectManager
+{
+	@PersistenceContext(unitName = "RopePU")
+	private EntityManager em;
+
+	public ProjectManagerImpl()
+	{
+		em=Resources.getEntityManager();
+	}
+
+	@Override
+	public void store(Project project)
+	{
+		em.persist(project);
+	}
+
+	@Override
+	public Project query(String name)
+	{
+		try
+		{
+			final String jpaQlQuery = "SELECT e FROM "
+					+ Project.class.getSimpleName() + " e WHERE e.name=:name";
+			Query q = em.createQuery(jpaQlQuery);
+			q.setParameter("name", name);
+			Project project = (Project) q.getSingleResult();
+			return project;
+		}
+		catch (Exception e)
+		{
+			// e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public void remove(Project project)
+	{
+		em.remove(project);
+	}
+
+	/*
+	@Override
+	public void lastReport(List<String> name, Date lastReport)
+	{
+		if (name != null)
+		{
+			for (String result : name)
+			{
+				if (this.check(result))
+				{
+					Project project = this.query(result);
+					project.setLastReport(lastReport);
+					em.persist(project);
+				}
+			}
+		}
+	}
+	*/
+}

@@ -1,0 +1,11 @@
+package uk.ac.ncl.dao;
+
+import uk.ac.ncl.model.Project;
+
+
+public interface ProjectManager
+{
+	public void store(Project project);
+	public Project query(String name);
+	public void remove(Project project);
+}

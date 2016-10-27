@@ -1,0 +1,61 @@
+package uk.ac.ncl.projectBo;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import uk.ac.ncl.dao.ProjectManager;
+import uk.ac.ncl.dao.ProjectManagerImpl;
+import uk.ac.ncl.model.Project;
+public class ProjectBoImpl implements ProjectBo
+{
+	private ProjectManager pm;
+	
+	@Autowired
+	public void setProjectManager(ProjectManagerImpl pm)
+	{
+		this.pm =pm;
+	}
+
+	@Override
+	public void create(String user, String name, Long size, Date closeOut)
+	{
+		Project project=new Project(user, name, size, closeOut, null);
+		pm.store(project);
+
+	}
+
+	@Override
+	public void delete(String name) throws Exception
+	{
+		Project project=pm.query(name);
+		if( project != null)
+		{
+			pm.remove(project);
+		}
+		else
+		{
+			throw new Exception("This project does not exsist!");
+		}
+
+	}
+
+	@Override
+	public void updateReport(List<String> name, Date lastReport)
+	{
+		if(name != null)
+		{
+			for (String result : name)
+			{
+			   Project project = pm.query(result);
+			   if(project != null)
+			   {
+				  project.setLastReport(lastReport);
+				  pm.store(project);
+			   }
+			}
+		}
+	}
+
+}

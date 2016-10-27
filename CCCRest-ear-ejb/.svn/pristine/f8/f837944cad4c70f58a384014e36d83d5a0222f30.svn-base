@@ -1,0 +1,5 @@
+package uk.ac.ncl.status;
+
+public enum ProhibitionStatus implements Status{
+	imposed, executing, completed;
+}

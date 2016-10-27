@@ -1,0 +1,62 @@
+package uk.ac.ncl.ropManager;
+
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.Right;
+
+public interface RopManager
+{
+	String getRole(String username) throws Exception;
+
+	boolean matchRight(String username, Operation operation);
+
+	boolean matchObligation(String username, Operation operation);
+
+	boolean matchProhibition(String username, Operation operation);
+	
+	Right getRight(String username, Operation operation) throws Exception;
+
+	Obligation getObligation(String username, Operation operation) throws Exception;
+
+	Prohibition getProhibition(String username, Operation operation) throws Exception;
+
+	void executeRight(String username, Right right) throws Exception;
+
+	void executeObligation(String username, Obligation obligation)
+			throws Exception;
+
+	void executeProhibition(String username, Prohibition prohibition)
+			throws Exception;
+	
+    void rollbackRight(String username, Right right)
+		        throws Exception;
+	
+	void rollbackObligation(String username, Obligation obligation)
+			throws Exception;
+	
+    void rollbackProhibition(String username, Prohibition prohibition)
+			throws Exception;
+
+	void grantRight(String username, Right right) throws Exception;
+
+	void imposeObligation(String username, Obligation obligation)
+			throws Exception;
+
+	void imposeProhibition(String username, Prohibition prohibition)
+			throws Exception;
+
+	void removeRight(String username, Right right) throws Exception;
+	
+	void removeObligation(String username, Obligation obligation) throws Exception;
+	
+	void removeProhibition(String username, Prohibition prohibition) throws Exception;
+	
+	void completeRight(String username, Right right) throws Exception;
+
+	void completeObligation(String username, Obligation obligation)
+			throws Exception;
+
+	void completeProhibition(String username, Prohibition prohibition)
+			throws Exception;
+}

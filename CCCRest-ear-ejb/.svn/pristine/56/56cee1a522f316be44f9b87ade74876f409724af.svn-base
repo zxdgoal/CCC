@@ -1,0 +1,16 @@
+package uk.ac.ncl.status;
+
+public interface ROPStatus
+{
+	enum RightStatus implements ROPStatus {
+		granted, executing;
+	}
+
+	enum ObligationStatus implements ROPStatus {
+        imposed, executing, completed;
+	}
+	
+	enum ProhibitionStatus implements ROPStatus {
+        imposed, executing, completed;
+	}
+}

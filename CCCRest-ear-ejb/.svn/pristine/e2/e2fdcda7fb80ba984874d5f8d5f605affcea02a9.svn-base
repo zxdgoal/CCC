@@ -1,0 +1,16 @@
+package uk.ac.ncl.state;
+
+public interface ROPState
+{
+	enum RightState implements ROPState {
+		granted, executing, fulfilled;
+	}
+
+	enum ObligationState implements ROPState {
+        imposed, executing, fulfilled, violated;
+	}
+	
+	enum ProhibitionState implements ROPState {
+        imposed, executing, expired, violated;
+	}
+}

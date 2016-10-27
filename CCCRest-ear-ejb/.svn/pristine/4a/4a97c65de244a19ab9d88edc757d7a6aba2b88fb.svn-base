@@ -1,0 +1,172 @@
+package uk.ac.ncl.model;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Date;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="ResearchData")
+public class Data implements Serializable
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1161244783401940420L;
+
+	@Id
+	@Column(name="ID")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(name="NAME", unique=true)
+	private String name;
+	
+	@Column(name="USERNAME")
+	private String username;
+	
+	@Column(name="LASTVISIT")
+	private Date lastVisit;
+	
+	@Column(name="LASTPUBLISH")
+	private Date publish;
+	
+	@Column(name="URL")
+	private String URL;
+	
+	@Column(name="SIZE")
+	private Long size;
+	
+	@ElementCollection()
+	@CollectionTable()
+	private List<String> rawData;
+	
+	@ElementCollection()
+	@CollectionTable()
+	private List<String> software;
+	
+
+	public Data(String name, String username, Long size, 
+			Date publish, Date lastVisit, String URL, List<String> rawData, List<String> software)
+	{
+		super();
+		this.name = name;
+		this.username = username;
+		this.publish = publish;
+		this.lastVisit = lastVisit;
+		this.size = size;
+		this.URL = URL;
+		this.rawData = rawData;
+		this.software = software;
+	}
+	
+	public Data ()
+	{
+		
+	}
+
+	public Date getPublish()
+	{
+		return publish;
+	}
+
+
+
+	public void setPublish(Date publish)
+	{
+		this.publish = publish;
+	}
+
+
+
+	public String getUsername()
+	{
+		return username;
+	}
+
+	public void setUsername(String username)
+	{
+		this.username = username;
+	}
+
+	public Long getId()
+	{
+		return id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public List<String> getRawData()
+	{
+		return rawData;
+	}
+
+	public void setRawData(List<String> rawData)
+	{
+		this.rawData = rawData;
+	}
+
+	public List<String> getSoftware()
+	{
+		return software;
+	}
+
+	public void setSoftware(List<String> software)
+	{
+		this.software = software;
+	}
+
+	public Date getLastVisit()
+	{
+		return lastVisit;
+	}
+
+	public void setLastVisit(Date lastVisit)
+	{
+		this.lastVisit = lastVisit;
+	}
+
+	public Long getSize()
+	{
+		return size;
+	}
+
+	public void setSize(Long size)
+	{
+		this.size = size;
+	}
+	
+	public String getURL()
+	{
+		return URL;
+	}
+	
+	public void setURL(String URL)
+	{
+		this.URL = URL;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
+	}
+	
+
+}

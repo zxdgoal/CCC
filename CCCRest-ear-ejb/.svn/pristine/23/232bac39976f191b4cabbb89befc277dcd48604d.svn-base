@@ -1,0 +1,131 @@
+package uk.ac.ncl.rop;
+
+import uk.ac.ncl.resource.Operation;
+import uk.ac.ncl.resource.Status;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
+
+@MappedSuperclass
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class RopEntity implements Serializable
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8495681371100274412L;
+
+	@Id
+	@Column(name = "ID")
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	Long id;
+
+	@Column(name = "NAME")
+	String name;
+
+	@Column(name = "TYPE")
+	String type;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "OPERATION")
+	Operation operation;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "STATUS")
+	Status status;
+
+	public RopEntity()
+	{
+
+	}
+
+	public RopEntity(Operation operation, String name, String type, Status status)
+	{
+		this.name = name;
+		this.type = type;
+		this.operation = operation;
+		this.status = status;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
+	public Operation getAction()
+	{
+		return operation;
+	}
+
+	public void setAction(Operation operation)
+	{
+		this.operation = operation;
+	}
+
+	public Status getStatus()
+	{
+		return status;
+	}
+
+	public void setStatus(Status status)
+	{
+		this.status = status;
+	}
+
+	public Long getId()
+	{
+		return id;
+	}
+
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+
+	@Override
+	public String toString()
+	{
+		return operation + " " + name + " " + type + " " + status;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!(obj instanceof RopEntity))
+			return false;
+		RopEntity rop = (RopEntity) obj;
+		return (name == null ? rop.name == null : name.equals(rop.name))
+				&& (operation == null ? rop.operation == null : operation
+						.equals(rop.operation))
+				&& (type == null ? rop.type == null : type.equals(rop.type))
+				&& (status == null ? rop.status == null : status
+						.equals(rop.status));
+	}
+
+}

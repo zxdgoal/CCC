@@ -1,0 +1,288 @@
+package uk.ac.ncl.core;
+
+import java.util.Date;
+
+import uk.ac.ncl.resource.Operation;
+
+/**
+ * The Class Event. Instances of this class represent (composite) events.
+ * Instances of this class represent (composite) events.
+ * 
+ */
+public class Event
+{
+
+	private String user;
+
+	private Operation operation;
+
+	private String type;
+
+	private String name;
+
+	private String object;
+
+	private Date timestamp = null;
+
+	/**
+	 * Instantiates a new event.
+	 * 
+	 * This constructor generates an event setting its timestamp so that it
+	 * represents the time of initialization.
+	 * 
+	 * @param originator
+	 *            the originator
+	 * @param responder
+	 *            the responder
+	 * @param type
+	 *            the type
+	 * @param status
+	 *            the status
+	 * @throws IllegalArgumentException
+	 *             the illegal argument exception
+	 */
+	public Event(String user, Operation operation, String type, String name,
+			String object) throws IllegalArgumentException
+	{
+		this.operation = operation;
+		this.user = user;
+		this.type = type;
+		this.name = name;
+		this.object = object;
+	}
+
+	public Event(String user, Operation operation, String type, String name,
+			Long size, String object, Date timestamp)
+			throws IllegalArgumentException
+	{
+		this.user = user;
+		this.operation = operation;
+		this.type = type;
+		this.name = name;
+		this.object = object;
+		this.timestamp = timestamp;
+	}
+
+	public Event(String user, Operation operation, String type, String name,
+			String object, String timestamp) throws IllegalArgumentException
+	{
+		this.user = user;
+		this.operation = operation;
+		this.type = type;
+		this.name = name;
+		this.object = object;
+		try
+		{
+			this.timestamp = DateParser.parse(timestamp);
+		}
+		catch (Exception e)
+		{
+			throw new IllegalArgumentException(
+					"Timestamp string cannot be parsed");
+		}
+	}
+
+	public String getUser()
+	{
+		return user;
+	}
+
+	public Operation getOperation()
+	{
+		return operation;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public String getObject()
+	{
+		return object;
+	}
+
+	/**
+	 * Gets the timestamp.
+	 * 
+	 * @return the timestamp
+	 */
+
+	public Date getTimestamp()
+	{
+		return timestamp;
+	}
+
+	public boolean before(Event e)
+	{
+		if (e == null)
+			throw new IllegalArgumentException("Supplied event is null");
+		Date t = e.getTimestamp();
+		return timestamp.before(t);
+	}
+
+	public boolean before(Date t)
+	{
+		if (t == null)
+			throw new IllegalArgumentException("Supplied timestamp is null");
+		return timestamp.before(t);
+	}
+
+	/**
+	 * Before.
+	 * 
+	 * Returns true if the timestamp of this event is strictly before the date
+	 * represented by the string s
+	 * 
+	 * @param s
+	 *            the date in string format
+	 * @return true, if successful
+	 */
+	public boolean before(String s)
+	{
+		if (s == null)
+			throw new IllegalArgumentException("Supplied timestamp is null");
+		Date t = DateParser.parse(s);
+		if (t == null)
+			throw new IllegalArgumentException(
+					"Supplied timestamp string is meaningless");
+		return timestamp.before(t);
+	}
+
+	/**
+	 * After.
+	 * 
+	 * Returns true if the timestamp of this event is strictly after Date t
+	 * 
+	 * @param t
+	 *            the t
+	 * @return true, if successful
+	 */
+	public boolean after(Date t)
+	{
+		if (t == null)
+			throw new IllegalArgumentException("Timestamp is null");
+		return timestamp.after(t);
+	}
+
+	/**
+	 * After.
+	 * 
+	 * Returns true if the timestamp of this event is strictly after Event t
+	 * 
+	 * @param e
+	 *            the e
+	 * @return true, if successful
+	 */
+	public boolean after(Event e)
+	{
+		if (e == null)
+			throw new IllegalArgumentException("Timestamp is null");
+		Date t = e.getTimestamp();
+		return timestamp.after(t);
+	}
+
+	/**
+	 * After. Returns true if the timestamp of this event is strictly after the
+	 * date represented by the string s
+	 * 
+	 * @param s
+	 *            the s
+	 * @return true, if successful
+	 */
+	public boolean after(String s)
+	{
+		if (s == null)
+			throw new IllegalArgumentException("Supplied timestamp is null");
+		Date t = DateParser.parse(s);
+		if (t == null)
+			throw new IllegalArgumentException(
+					"Supplied timestamp string is meaningless");
+		return timestamp.after(t);
+	}
+
+	/**
+	 * Compare timestamp.
+	 * 
+	 * Returns 0 if the timestamp of this event is the same of the one of e, <0
+	 * if it is before e, >0 if it is after e.
+	 * 
+	 * @param e
+	 *            the e
+	 * @return the int
+	 */
+	public int compareTimestamp(Event e)
+	{
+		if (e == null)
+			throw new IllegalArgumentException("Supplied event is null");
+		return timestamp.compareTo(e.getTimestamp());
+	}
+
+	/**
+	 * Compare timestamp.
+	 * 
+	 * Returns 0 if the timestamp of this event equals t, <0 if it is before t,
+	 * >0 if it is after t.
+	 * 
+	 * @param t
+	 *            the t
+	 * @return the int
+	 */
+	public int compareTimestamp(Date t)
+	{
+		if (t == null)
+			throw new IllegalArgumentException("Timestamp is null");
+		return timestamp.compareTo(t);
+	}
+
+	/**
+	 * Compare timestamp.
+	 * 
+	 * Returns 0 if the timestamp of this event equals t, <0 if it is before t,
+	 * >0 if it is after t.
+	 * 
+	 * @param s
+	 *            the s
+	 * @return the int
+	 */
+	public int compareTimestamp(String s)
+	{
+		if (s == null)
+			throw new IllegalArgumentException("Timestamp is null");
+		Date t = DateParser.parse(s);
+		if (t == null)
+			throw new IllegalArgumentException(
+					"Supplied timestamp string is meaningless");
+		return timestamp.compareTo(t);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("Event [");
+		if (user != null)
+			builder.append("user=").append(user).append(", ");
+		if (operation != null)
+			builder.append("operation=").append(operation).append(", ");
+		if (type != null)
+			builder.append("type=").append(type).append(", ");
+		if (name != null)
+			builder.append("name=").append(name).append(", ");
+		if (object != null)
+			builder.append("object=").append(object);
+		builder.append("]");
+		return builder.toString();
+	}
+
+}

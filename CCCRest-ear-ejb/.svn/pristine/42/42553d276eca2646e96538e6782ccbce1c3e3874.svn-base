@@ -1,0 +1,44 @@
+package uk.ac.ncl.dao;
+
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.Right;
+import uk.ac.ncl.state.ROPState.ObligationState;
+import uk.ac.ncl.state.ROPState.ProhibitionState;
+import uk.ac.ncl.state.ROPState.RightState;
+import uk.ac.ncl.user.User;
+
+public interface UserManager
+{
+	void store(User user);
+
+	User query(String name);
+
+	void remove(User user);
+
+	void addRight(User user, Right right);
+
+	void addObligation(User user, Obligation obligation);
+
+	void addProhibition(User user, Prohibition prohibition);
+
+	Right getRight(User user, Operation operation);
+
+	Obligation getObligation(User user, Operation operation);
+
+	Prohibition getProhibition(User user, Operation operation);
+	
+	boolean changeRight(User user, Right right, RightState state );
+
+	boolean changeObligation(User user, Obligation obligation, ObligationState state);
+
+	boolean changeProhibition(User user, Prohibition prohibition, ProhibitionState state);
+
+	boolean deleteRight(User user, Right right);
+
+	boolean deleteObligation(User user, Obligation obligation);
+
+	boolean deleteProhibition(User user, Prohibition prohibition);
+
+}

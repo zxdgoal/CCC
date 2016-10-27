@@ -1,0 +1,152 @@
+package uk.ac.ncl.web;
+
+import java.io.IOException;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.Right;
+import uk.ac.ncl.user.User;
+import uk.ac.ncl.userBo.UserBo;
+
+@Controller
+public class UserController
+{
+	private UserBo ub;
+
+	@Autowired
+	public void setUserBo(UserBo ub)
+	{
+		this.ub = ub;
+	}
+
+	@RequestMapping("")
+	public String index()
+	{
+		return "index";
+	}
+
+	@RequestMapping("/index")
+	public String homepage()
+	{
+		return "index";
+	}
+
+	@RequestMapping("/signup")
+	public String signup()
+	{
+		return "signup";
+	}
+
+	@RequestMapping("/signout")
+	public String signout(HttpServletRequest req) throws IOException
+	{
+		HttpSession session = req.getSession();
+		session.invalidate();
+		return "index";
+	}
+
+	@RequestMapping("/ropInfo")
+	public String ropInfo(HttpServletRequest req, Model model)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "loginError";
+		}
+		else
+		{
+			String username = ((User) session.getAttribute("user")).getName();
+			String password = ((User) session.getAttribute("user")).getPassword();
+			try
+			{
+				User user = ub.get(username, password);
+				Set<Right> userRight = user.getRight();
+				Set<Obligation> userObligation = user.getObligation();
+				Set<Prohibition> userProhibition = user.getProhibition();
+				model.addAttribute("userRight", userRight);
+				model.addAttribute("userObligation", userObligation);
+				model.addAttribute("userProhibition", userProhibition);
+				return "ropInfo";
+			}
+			catch (Exception e)
+			{
+				return "fail";
+			}
+		}
+	}
+
+	@RequestMapping("/signin")
+	public String signin(HttpServletRequest req)
+	{
+		HttpSession session = req.getSession();
+		if (session.getAttribute("user") == null)
+		{
+			return "signin";
+		}
+		else
+		{
+			return "index";
+		}
+	}
+
+	@RequestMapping(value = { "/signup" }, method = { RequestMethod.POST }, params = {
+			"username", "password", "role" })
+	public String signup(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException
+	{
+		String username = req.getParameter("username");
+		String password = req.getParameter("password");
+		String role = req.getParameter("role");
+		try
+		{
+			User user = ub.create(username, password, role);
+			HttpSession session = req.getSession();
+			session.setAttribute("user", user);
+			return "success";
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return "fail";
+		}
+	}
+
+	@RequestMapping(value = { "/signin" }, method = { RequestMethod.POST }, params = {
+			"username", "password" })
+	public String signin(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException
+	{
+		String username = req.getParameter("username");
+		String password = req.getParameter("password");
+		try
+		{
+			User user = ub.get(username, password);
+			if (user != null)
+			{
+				HttpSession session = req.getSession();
+				session.setAttribute("user", user);
+				return "success";
+			}
+			else
+			{
+				return "loginError";
+			}
+		}
+		catch (Exception e)
+		{
+			return "fail";
+		}
+	}
+
+}

@@ -1,0 +1,6 @@
+package uk.ac.ncl.status;
+
+public interface Status
+{
+
+}

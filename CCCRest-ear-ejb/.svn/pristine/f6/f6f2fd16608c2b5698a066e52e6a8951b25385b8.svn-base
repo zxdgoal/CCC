@@ -1,0 +1,72 @@
+package uk.ac.ncl.core;
+
+import java.util.TimerTask;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ncl.dao.UserManager;
+import uk.ac.ncl.dao.UserManagerImpl;
+import uk.ac.ncl.resource.Resources;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.RopEntity;
+import uk.ac.ncl.state.ROPState;
+import uk.ac.ncl.state.ROPState.ObligationState;
+import uk.ac.ncl.state.ROPState.ProhibitionState;
+import uk.ac.ncl.user.User;
+
+@Stateless
+public class Deadline extends TimerTask
+{
+	private RopEntity<? extends ROPState> rop;
+	private UserManager userManager;
+
+	public Deadline()
+	{
+		userManager=new UserManagerImpl();
+	}
+
+	public Deadline(RopEntity<? extends ROPState> rop)
+	{
+		this.rop = rop;
+		userManager=new UserManagerImpl();
+	}
+
+	@Override
+	@Transactional
+	public void run()
+	{
+		if (rop instanceof Obligation)
+		{
+			Obligation obligation = (Obligation) rop;
+			if (obligation.getState() == ObligationState.imposed)
+			{
+				//Obligation obligationEntity = em.merge(obligation);
+				//obligationEntity.setState(ObligationState.violated);
+				//em.persist(obligation);
+				User user = new User("zhao", "belldandy", "PI", null, null, null);
+				userManager.store(user);
+				System.out.println("The obligation: " + obligation.getName()
+						+ " has been expired!");
+			}
+		}
+		else if (rop instanceof Prohibition)
+		{
+			Prohibition prohibition = (Prohibition) rop;
+			if (prohibition.getState() == ProhibitionState.imposed)
+			{
+				prohibition.setState(ProhibitionState.expired);
+			
+
+				System.out.println("The prohibition: " + prohibition.getName()
+						+ " has been expired!");
+			}
+
+		}
+	}
+}

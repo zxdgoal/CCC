@@ -1,0 +1,102 @@
+package uk.ac.ncl.checker;
+
+import java.util.Date;
+import java.util.List;
+
+import uk.ac.ncl.dao.DataManager;
+import uk.ac.ncl.dao.DataManagerImpl;
+import uk.ac.ncl.dao.ProjectManager;
+import uk.ac.ncl.dao.ProjectManagerImpl;
+import uk.ac.ncl.model.Data;
+
+public class DataCheckerImpl implements DataChecker
+{
+	private DataManager dm;
+
+	private ProjectManager pm;
+
+	public DataCheckerImpl()
+	{
+		dm = new DataManagerImpl();
+		pm = new ProjectManagerImpl();
+	}
+
+	@Override
+	public boolean checkDependency(String name) throws Exception
+	{
+		Data data = dm.query(name);
+		if (data != null)
+		{
+			List<String> rawData = data.getRawData();
+			List<String> software = data.getSoftware();
+			if (!rawData.isEmpty())
+			{
+				for (String result : rawData)
+				{
+					if (dm.query(result) == null)
+						return false;
+				}
+			}
+			if (!software.isEmpty())
+			{
+				for (String result : software)
+				{
+					if (pm.query(result) == null)
+						return false;
+				}
+			}
+			if (software.isEmpty() && rawData.isEmpty())
+			{
+				return true;
+			}
+			return true;
+		}
+		else
+		{
+			throw new Exception("This data does not exsist!");
+		}
+	}
+
+	@Override
+	public String getUser(String name) throws Exception
+	{
+		Data data = dm.query(name);
+		if (data != null)
+		{
+			return data.getOwner();
+		}
+		else
+		{
+			throw new Exception("This data does not exsist!");
+		}
+	}
+
+	@Override
+	public Long getSize(String name) throws Exception
+	{
+		Data data = dm.query(name);
+		if (data != null)
+		{
+			return data.getSize();
+		}
+		else
+		{
+			throw new Exception("This data does not exsist!");
+		}
+	}
+
+	@Override
+	public Date getLastVisit(String name) throws Exception
+	{
+		Data data = dm.query(name);
+		if (data != null)
+		{
+			return data.getLastVisit();
+		}
+		else
+		{
+			throw new Exception("This data does not exsist!");
+		}
+	}
+
+}

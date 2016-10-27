@@ -1,0 +1,223 @@
+package uk.ac.ncl.dao;
+
+import java.util.Iterator;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ncl.user.User;
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.resource.Resources;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.Right;
+import uk.ac.ncl.status.*;
+
+public class UserManagerImpl implements UserManager
+{
+	@PersistenceContext(unitName = "RopePU")
+	private EntityManager em;
+
+	public UserManagerImpl()
+	{
+		em = Resources.getEntityManager();
+	}
+
+	@Override
+	public void store(User user)
+	{
+		em.persist(user);
+	}
+
+	@Override
+	public User query(String name)
+	{
+		try
+		{
+			final String jpaQlQuery = "SELECT e FROM "
+					+ User.class.getSimpleName() + " e WHERE e.name=:name";
+			Query q = em.createQuery(jpaQlQuery);
+			q.setParameter("name", name);
+			User user = (User) q.getSingleResult();
+			return user;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public void remove(User user)
+	{
+		em.remove(user);
+
+	}
+
+	@Override
+	public void changeRight(User user, Operation operation,
+			RightStatus oldStatus, RightStatus newStatus)
+	{
+		List<Right> userRight = user.getRight();
+		Right right = new Right(operation, oldStatus);
+		for (Right result : userRight)
+		{
+			if (right.equals(result))
+				result.setStatus(newStatus);
+		}
+	}
+
+	@Override
+	public void changeObligation(User user, Operation operation,
+			ObligationStatus oldStatus, ObligationStatus newStatus)
+	{
+		List<Obligation> userObligation = user.getObligation();
+		Obligation obligation = new Obligation(operation, oldStatus);
+		for (Obligation result : userObligation)
+		{
+			if (obligation.equals(result))
+				result.setStatus(newStatus);
+		}
+	}
+
+	@Override
+	public void changeProhibition(User user, Operation operation,
+			ProhibitionStatus oldStatus, ProhibitionStatus newStatus)
+	{
+		List<Prohibition> userProhibition = user.getProhibition();
+		Prohibition prohibition = new Prohibition(operation, oldStatus);
+		for (Prohibition result : userProhibition)
+		{
+			if (prohibition.equals(result))
+				result.setStatus(oldStatus);
+		}
+	}
+
+	@Override
+	public boolean matchRight(User user, Operation operation, RightStatus status)
+	{
+		List<Right> userRight = user.getRight();
+		Right right = new Right(operation, status);
+		for (Right result : userRight)
+		{
+			if (right.equals(result))
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean matchObligation(User user, Operation operation,
+			ObligationStatus status)
+	{
+		List<Obligation> userObligation = user.getObligation();
+		Obligation obligation = new Obligation(operation, status);
+		for (Obligation result : userObligation)
+		{
+			if (obligation.equals(result))
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean matchProhibition(User user, Operation operation,
+			ProhibitionStatus status)
+	{
+		List<Prohibition> userProhibition = user.getProhibition();
+		Prohibition prohibition = new Prohibition(operation, status);
+		for (Prohibition result : userProhibition)
+		{
+			if (prohibition.equals(result))
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void addRight(User user, Operation operation) throws Exception
+	{
+		List<Right> userRight = user.getRight();
+		for (Right result : userRight)
+		{
+			if (operation.equals(result.getOperation()))
+				throw new Exception("This right is already in the ROP set!");
+		}
+		Right right = new Right(operation, RightStatus.granted);
+		userRight.add(right);
+	}
+
+	@Override
+	public void addObligation(User user, Operation operation) throws Exception
+	{
+		List<Obligation> userObligation = user.getObligation();
+		for (Obligation result : userObligation)
+		{
+			if (operation.equals(result.getOperation()))
+				throw new Exception(
+						"This obligation is already in the ROP set!");
+		}
+		Obligation obligation = new Obligation(operation,
+				ObligationStatus.imposed);
+		userObligation.add(obligation);
+	}
+
+	@Override
+	public void addProhibition(User user, Operation operation) throws Exception
+	{
+		List<Prohibition> userProhibition = user.getProhibition();
+		for (Prohibition result : userProhibition)
+		{
+			if (operation.equals(result.getOperation()))
+				throw new Exception(
+						"This prohibition is already in the ROP set!");
+		}
+		Prohibition prohibition = new Prohibition(operation,
+				ProhibitionStatus.imposed);
+		userProhibition.add(prohibition);
+	}
+
+	@Override
+	public void deleteRight(User user, Operation operation)
+	{
+		List<Right> userRight = user.getRight();
+		Iterator<Right> iter = userRight.iterator();
+		while (iter.hasNext())
+		{
+			Right result = iter.next();
+			if (operation.equals(result.getOperation()))
+				iter.remove();
+		}
+	}
+
+	@Override
+	public void deleteObligation(User user, Operation operation)
+	{
+		List<Obligation> userObligation = user.getObligation();
+		Iterator<Obligation> iter = userObligation.iterator();
+		while (iter.hasNext())
+		{
+			Obligation result = iter.next();
+			if (operation.equals(result.getOperation()))
+				iter.remove();
+		}
+	}
+
+	@Override
+	public void deleteProhibition(User user, Operation operation)
+	{
+		List<Prohibition> userProhibition = user.getProhibition();
+		Iterator<Prohibition> iter = userProhibition.iterator();
+		while (iter.hasNext())
+		{
+			Prohibition result = iter.next();
+			if (operation.equals(result.getOperation()))
+				iter.remove();
+		}
+	}
+}

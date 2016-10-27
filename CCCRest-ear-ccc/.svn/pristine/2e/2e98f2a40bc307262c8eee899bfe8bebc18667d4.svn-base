@@ -1,0 +1,350 @@
+package uk.ac.ncl.ropManager;
+
+import java.util.List;
+
+import uk.ac.ncl.dao.UserManager;
+import uk.ac.ncl.dao.UserManagerImpl;
+import uk.ac.ncl.user.User;
+import uk.ac.ncl.rop.*;
+import uk.ac.ncl.resource.Status;
+import uk.ac.ncl.resource.Operation;
+
+public class RopManagerImpl implements RopManager
+{
+	private UserManager um;
+
+	public RopManagerImpl()
+	{
+		um = new UserManagerImpl();
+	}
+
+	@Override
+	public String getRole(String username) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			return user.getRole();
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void pendRight(String username, Operation operation, String name,
+			String type) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Right> userRight = user.getRight();
+			Right rightOne = new Right(operation, name, type, Status.inactive);
+			Right rightTwo = new Right(operation, name, type, Status.active);
+			for (Right result : userRight)
+			{
+				if (rightOne.equals(result) || rightTwo.equals(result))
+				{
+					result.setStatus(Status.pending);
+					um.store(user);
+					return;
+				}
+			}
+			Right newRight = new Right(operation, name, type, Status.pending);
+			userRight.add(newRight);
+			um.store(user);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+
+	@Override
+	public void pendObligation(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Obligation> userObligation = user.getObligation();
+			Obligation obligationOne = new Obligation(operation, name, type,
+					Status.inactive);
+			Obligation obligationTwo = new Obligation(operation, name, type,
+					Status.active);
+			for (Obligation result : userObligation)
+			{
+				if (obligationOne.equals(result)
+						|| obligationTwo.equals(result))
+				{
+					result.setStatus(Status.pending);
+					um.store(user);
+					return;
+				}
+			}
+			Obligation newObligation = new Obligation(operation, name, type,
+					Status.pending);
+			userObligation.add(newObligation);
+			um.store(user);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void pendProhibiton(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Prohibition> userProhibition = user.getProhibiton();
+			Prohibition prohibitionOne = new Prohibition(operation, name, type,
+					Status.inactive);
+			Prohibition prohibitionTwo = new Prohibition(operation, name, type,
+					Status.active);
+			for (Prohibition result : userProhibition)
+			{
+				if (prohibitionOne.equals(result)
+						|| prohibitionTwo.equals(result))
+				{
+					result.setStatus(Status.pending);
+					um.store(user);
+					return;
+				}
+			}
+			Prohibition newProhibition = new Prohibition(operation, name, type,
+					Status.pending);
+			userProhibition.add(newProhibition);
+			um.store(user);
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public boolean matchRight(String username, Operation operation,
+			String name, String type)
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Right> userRight = user.getRight();
+			Right right = new Right(operation, name, type, Status.active);
+			for (Right result : userRight)
+			{
+				if (right.equals(result))
+					return true;
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public boolean matchObligation(String username, Operation operation,
+			String name, String type)
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Obligation> userObligation = user.getObligation();
+			Obligation obligation = new Obligation(operation, name, type,
+					Status.active);
+			for (Obligation result : userObligation)
+			{
+				if (obligation.equals(result))
+					return true;
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public boolean matchProhibition(String username, Operation operation,
+			String name, String type)
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Prohibition> userProhibition = user.getProhibiton();
+			Prohibition prohibition = new Prohibition(operation, name, type,
+					Status.active);
+			for (Prohibition result : userProhibition)
+			{
+				if (prohibition.equals(result))
+					return true;
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public void activateRight(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Right> userRight = user.getRight();
+			Right right = new Right(operation, name, type, Status.pending);
+			for (Right result : userRight)
+			{
+				if (right.equals(result))
+				{
+					result.setStatus(Status.active);
+					um.store(user);
+				}
+			}
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+
+	@Override
+	public void activateObligation(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Obligation> userObligation = user.getObligation();
+			Obligation obligation = new Obligation(operation, name, type,
+					Status.pending);
+			for (Obligation result : userObligation)
+			{
+				if (obligation.equals(result))
+				{
+					result.setStatus(Status.active);
+					um.store(user);
+				}
+			}
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+
+	@Override
+	public void activateProhibition(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		Prohibition prohibition = new Prohibition(operation, name, type,
+				Status.pending);
+		if (user != null)
+		{
+			List<Prohibition> userProhibition = user.getProhibiton();
+			for (Prohibition result : userProhibition)
+			{
+				if (prohibition.equals(result))
+				{
+					result.setStatus(Status.active);
+					um.store(user);
+				}
+			}
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void deactivateRight(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Right> userRight = user.getRight();
+			Right right = new Right(operation, name, type, Status.pending);
+			for (Right result : userRight)
+			{
+				if (right.equals(result))
+				{
+					result.setStatus(Status.inactive);
+					um.store(user);
+				}
+			}
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+	}
+
+	@Override
+	public void deactivateObligation(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		if (user != null)
+		{
+			List<Obligation> userObligation = user.getObligation();
+			Obligation obligation = new Obligation(operation, name, type,
+					Status.pending);
+			for (Obligation result : userObligation)
+			{
+				if (obligation.equals(result))
+				{
+					result.setStatus(Status.inactive);
+					um.store(user);
+				}
+			}
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+
+	@Override
+	public void deactivateProhibition(String username, Operation operation,
+			String name, String type) throws Exception
+	{
+		User user = um.query(username);
+		Prohibition prohibition = new Prohibition(operation, name, type,
+				Status.pending);
+		if (user != null)
+		{
+			List<Prohibition> userProhibition = user.getProhibiton();
+			for (Prohibition result : userProhibition)
+			{
+				if (prohibition.equals(result))
+				{
+					result.setStatus(Status.inactive);
+					um.store(user);
+				}
+			}
+		}
+		else
+		{
+			throw new Exception("No such user exists!");
+		}
+
+	}
+}

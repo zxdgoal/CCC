@@ -1,0 +1,14 @@
+package uk.ac.ncl.checker;
+
+import java.util.Date;
+
+/*
+ * all the methods from this interface should be immutable
+ */
+public interface DataChecker
+{
+	public Long getSize(String name)throws Exception;
+	public String getUser(String name)throws Exception;
+	public Date getLastVisit(String name)throws Exception;
+	public boolean checkDependency(String name) throws Exception;
+}

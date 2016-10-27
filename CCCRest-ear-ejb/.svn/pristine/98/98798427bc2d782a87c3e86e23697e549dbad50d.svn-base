@@ -1,0 +1,128 @@
+package uk.ac.ncl.model;
+
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="Project")
+public class Project implements Serializable
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5379987700799924492L;
+
+	@Id
+	@Column(name="ID")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(name="USER")
+	private String user;
+	
+	@Column(name="NAME", unique=true)
+	private String name;
+	
+	@Column(name="SIZE")
+	private Long size;
+
+	@Column(name="CLOSEOUT")
+	private Date closeOut;
+	
+	@Column(name="LASTREPORT")
+	private Date lastReport;
+
+	/**
+	 * @param name
+	 * @param size
+	 * @param closeOut
+	 * @param lastReport
+	 */
+	public Project(String user, String name, Long size, Date closeOut, Date lastReport)
+	{
+		super();
+		this.user = user;
+		this.size = size;
+		this.name = name;
+		this.closeOut = closeOut;
+		this.lastReport = lastReport;
+	}
+	
+	public String getUser()
+	{
+		return user;
+	}
+
+	public void setUser(String user)
+	{
+		this.user = user;
+	}
+
+	public Long getSize()
+	{
+		return size;
+	}
+
+	public void setSize(Long size)
+	{
+		this.size = size;
+	}
+
+	public Project()
+	{
+		
+	}
+
+	public Long getId()
+	{
+		return id;
+	}
+
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public Date getCloseOut()
+	{
+		return closeOut;
+	}
+
+	public void setCloseOut(Date closeOut)
+	{
+		this.closeOut = closeOut;
+	}
+
+	public Date getLastReport()
+	{
+		return lastReport;
+	}
+
+	public void setLastReport(Date lastReport)
+	{
+		this.lastReport = lastReport;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
+	}
+	
+}

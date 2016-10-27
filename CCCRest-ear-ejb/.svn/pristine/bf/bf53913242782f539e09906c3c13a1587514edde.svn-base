@@ -1,0 +1,206 @@
+package uk.ac.ncl.dao;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import uk.ac.ncl.user.User;
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.resource.Resources;
+import uk.ac.ncl.rop.Obligation;
+import uk.ac.ncl.rop.Prohibition;
+import uk.ac.ncl.rop.Right;
+import uk.ac.ncl.state.ROPState.ObligationState;
+import uk.ac.ncl.state.ROPState.ProhibitionState;
+import uk.ac.ncl.state.ROPState.RightState;
+
+public class UserManagerImpl implements UserManager
+{
+	@PersistenceContext(unitName = "RopePU")
+	private EntityManager em;
+
+	public UserManagerImpl()
+	{
+		em = Resources.getEntityManager();
+	}
+
+	@Override
+	public void store(User user)
+	{
+		em.persist(user);
+	}
+
+	@Override
+	public User query(String name)
+	{
+		try
+		{
+			final String jpaQlQuery = "SELECT e FROM "
+					+ User.class.getSimpleName() + " e WHERE e.name=:name";
+			Query q = em.createQuery(jpaQlQuery);
+			q.setParameter("name", name);
+			User user = (User) q.getSingleResult();
+			return user;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public void remove(User user)
+	{
+		em.remove(user);
+
+	}
+
+	@Override
+	public void addRight(User user, Right right)
+	{
+		Set<Right> userRight = user.getRight();
+		userRight.add(right);
+	}
+
+	@Override
+	public void addObligation(User user, Obligation obligation)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		userObligation.add(obligation);
+	}
+
+	@Override
+	public void addProhibition(User user, Prohibition prohibition)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		userProhibition.add(prohibition);
+	}
+
+	@Override
+	public void deleteRight(User user, Right right)
+	{
+		Set<Right> userRight = user.getRight();
+		Iterator<Right> iter = userRight.iterator();
+		while (iter.hasNext())
+		{
+			Right result = iter.next();
+			if (right.equals(result))
+				iter.remove();
+		}
+	}
+
+	@Override
+	public void deleteObligation(User user, Obligation obligation)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		Iterator<Obligation> iter = userObligation.iterator();
+		while (iter.hasNext())
+		{
+			Obligation result = iter.next();
+			if (obligation.equals(result))
+				iter.remove();
+		}
+	}
+
+	@Override
+	public void deleteProhibition(User user, Prohibition prohibition)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		Iterator<Prohibition> iter = userProhibition.iterator();
+		while (iter.hasNext())
+		{
+			Prohibition result = iter.next();
+			if (prohibition.equals(result))
+				iter.remove();
+		}
+	}
+
+	@Override
+	public Right getRight(User user, Operation operation)
+	{
+		Set<Right> userRight = user.getRight();
+		for (Right right : userRight)
+		{
+			Set<Operation> operationSet = right.getOperation();
+			for (Operation result : operationSet)
+			{
+				if (operation.equals(result))
+					return right;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Obligation getObligation(User user, Operation operation)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		for (Obligation obligation : userObligation)
+		{
+			Set<Operation> operationSet = obligation.getOperation();
+			for (Operation result : operationSet)
+			{
+				if (operation.equals(result))
+					return obligation;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Prohibition getProhibition(User user, Operation operation)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		for (Prohibition prohibition: userProhibition)
+		{
+			Set<Operation> operationSet = prohibition.getOperation();
+			for (Operation result : operationSet)
+			{
+				if(operation.equals(result))
+					return prohibition;
+			}
+				
+		}
+		return null;
+	}
+
+	@Override
+	public Right getRight(User user, Right right)
+	{
+		Set<Right> userRight = user.getRight();
+		for (Right result : userRight)
+		{
+			if (right.equals(result))
+				return result;
+		}
+		return null;
+	}
+
+	@Override
+	public Obligation getObligation(User user, Obligation obligation)
+	{
+		Set<Obligation> userObligation = user.getObligation();
+		for (Obligation result : userObligation)
+		{
+			if (obligation.equals(result))
+				return result;
+		}
+		return null;
+	}
+
+	@Override
+	public Prohibition getProhibition(User user, Prohibition prohibition)
+	{
+		Set<Prohibition> userProhibition = user.getProhibition();
+		for (Prohibition result: userProhibition)
+		{
+			if (prohibition.equals(result))
+				return result;
+		}
+		return null;
+	}
+}

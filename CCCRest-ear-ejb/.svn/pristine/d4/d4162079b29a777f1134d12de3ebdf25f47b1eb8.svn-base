@@ -1,0 +1,11 @@
+package uk.ac.ncl.dao;
+
+import uk.ac.ncl.user.User;
+
+public interface UserManager
+{
+	void store(User user);
+	User query(String name);
+	void remove(User user);
+	
+}

@@ -1,0 +1,156 @@
+package uk.ac.ncl.model;
+
+import uk.ac.ncl.resource.Operation;
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+/**
+ * The Class BusinessEvent provides an entity for eventhistory database table.
+ *
+ */
+@Entity
+@Table(name = "Eventhistory")
+public class BusinessEvent implements Serializable {
+
+
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@Column(name ="ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@Column(name = "USER")
+	private String user;
+
+	@Column(name = "OPERATION")
+	@Enumerated(EnumType.STRING)
+	private Operation operation;
+
+	@Column(name = "TIMESTAMP", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date timestamp;
+
+	@Column(name = "TYPE")
+	private String type;
+	
+	@Column(name = "NAME")
+	private String name;
+
+	@Column(name ="OBJECT")
+	private String object;
+	
+	public BusinessEvent()
+	{
+
+	}
+
+	public BusinessEvent(String user, Operation operation, String type, String name, String object)
+	{
+		super();
+		this.user = user;
+		this.operation = operation;
+		this.type = type;
+		this.name = name;
+		this.object = object;
+		}
+  
+	public Long getId()
+	{
+		return id;
+	}
+
+	public String getUser()
+	{
+		return user;
+	}
+
+	public void setUser(String user)
+	{
+		this.user = user;
+	}
+
+	public Operation getOperation()
+	{
+		return operation;	
+	}
+
+	public void setOperation(Operation operation)
+	{
+		this.operation = operation;
+	}
+
+	public Date getTimestamp()
+	{
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp)
+	{
+		this.timestamp = timestamp;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+    
+
+	public String getObject()
+	{
+		return object;
+	}
+
+	public void setObject(String object)
+	{
+		this.object = object;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BusinessEvent [");
+		if (id != null)
+			builder.append("id=").append(id).append(", ");
+		if (user != null)
+			builder.append("user=").append(user).append(", ");
+		if (operation != null)
+			builder.append("operation=").append(operation).append(", ");
+		if (timestamp != null)
+			builder.append("timestamp=").append(timestamp).append(", ");
+		if (type != null)
+			builder.append("type=").append(type).append(", ");
+		if (name != null)
+			builder.append("name=").append(name).append(", ");
+		if (object != null)
+		builder.append("object=").append(object);
+		builder.append("]");
+		return builder.toString();
+	}
+
+}

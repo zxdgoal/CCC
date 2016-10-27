@@ -1,0 +1,29 @@
+package uk.ac.ncl.core;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.persistence.EntityManager;
+
+import uk.ac.ncl.resource.Resources;
+import uk.ac.ncl.user.User;
+
+@Singleton
+public class Test
+{
+	private EntityManager em=Resources.getEntityManager();
+
+	public Test()
+	{
+		em=Resources.getEntityManager();
+	}
+
+	@PostConstruct
+	@Schedule(hour = "0", minute = "0", second = "5", persistent = false)
+	public void run()
+	{
+		User user = new User("zhao", "belldandy", "PI", null, null, null);
+		em.persist(user);
+	}
+
+}

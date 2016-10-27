@@ -1,0 +1,44 @@
+package uk.ac.ncl.ropManager;
+
+import uk.ac.ncl.resource.Operation;
+
+public interface RopManager
+{
+	String getRole(String username) throws Exception;
+
+	void pendRight(String username, Operation operation, String name, String type)
+			throws Exception;
+
+	boolean matchRight(String username, Operation operation, String name,
+			String type);
+
+	void pendObligation(String username, Operation operation, String name, String type)
+			throws Exception;
+
+	boolean matchObligation(String username, Operation operation, String name,
+			String type);
+
+	void pendProhibiton(String username, Operation operation, String name, String type)
+			throws Exception;
+
+	boolean matchProhibition(String username, Operation operation, String name,
+			String type);
+
+	void activateRight(String username, Operation operation, String name, String type)
+			throws Exception;
+
+	void activateObligation(String username, Operation operation, String name,
+			String type) throws Exception;
+
+	void activateProhibition(String username, Operation operation, String name,
+			String type) throws Exception;
+
+	void deactivateRight(String username, Operation operation, String name,
+			String type) throws Exception;
+
+	void deactivateObligation(String username, Operation operation, String name,
+			String type) throws Exception;
+
+	void deactivateProhibition(String username, Operation operation, String name,
+			String type) throws Exception;
+}

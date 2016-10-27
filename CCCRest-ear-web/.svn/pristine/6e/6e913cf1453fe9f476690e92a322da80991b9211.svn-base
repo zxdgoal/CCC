@@ -1,0 +1,96 @@
+package uk.ac.ncl.engine;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import uk.ac.ncl.erop.CCCengine;
+import uk.ac.ncl.model.BusinessEvent;
+import uk.ac.ncl.resource.Operation;
+import uk.ac.ncl.response.CCCResponse;
+
+public class Engine
+{
+	private CCCengine engine;
+	private String user;
+	private String name;
+	private String object;
+	private final String type ="data";
+	
+	@Autowired
+	public void setCCCengine(CCCengine engine)
+	{
+		this.engine = engine;
+	}
+
+	
+	public Boolean storeRule(String user, String name)
+	{
+		this.user = user;
+		this.name = name;
+		this.object = null;
+		BusinessEvent bEvent= new BusinessEvent(user, Operation.store, type, name, object);
+		CCCResponse response = engine.run(bEvent);
+		return response.getContractCompliant();
+	}
+	
+	public Boolean addDependencyRule(String user, String name, String object)
+	{
+		this.user = user;
+		this.name = name;
+		this.object = object;
+		BusinessEvent bEvent= new BusinessEvent(user, Operation.addDependency, type, name, object);
+		CCCResponse response = engine.run(bEvent);
+		return response.getContractCompliant();
+	}
+	
+	public Boolean updateRule(String user, String name, String object)
+	{
+		this.user = user;
+		this.name = name;
+		this.object = object;
+		BusinessEvent bEvent= new BusinessEvent(user, Operation.update, type, name, object);
+		CCCResponse response = engine.run(bEvent);
+		return response.getContractCompliant();
+	}
+	
+	public Boolean retrieveRule(String user, String name)
+	{
+		this.user = user;
+		this.name = name;
+		this.object = null;
+		BusinessEvent bEvent= new BusinessEvent(user, Operation.retrieve, type, name, object);
+		CCCResponse response = engine.run(bEvent);
+		return response.getContractCompliant();
+	}
+	
+	public Boolean removeRule(String user, String name)
+	{
+		this.user = user;
+		this.name = name;
+		this.object = null;
+		BusinessEvent bEvent = new BusinessEvent(user, Operation.remove, type, name, object);
+		CCCResponse response = engine.run(bEvent);
+		return response.getContractCompliant();
+	}
+	
+	public void success(Operation operation)
+	{
+		BusinessEvent bEvent = new BusinessEvent(user, operation, type, name, object);
+		engine.run(bEvent);
+		this.reset();
+	}
+	
+	public void fail(Operation operation)
+	{
+		BusinessEvent bEvent = new BusinessEvent(user, operation, type, name, object);
+		engine.run(bEvent);
+		this.reset();
+	}
+	
+	private void reset()
+	{
+		this.name = null;
+		this.user= null;
+		this.object =null;
+	}
+	
+}

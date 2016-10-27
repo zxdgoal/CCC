@@ -1,0 +1,9 @@
+package uk.ac.ncl.resource;
+
+public enum Operation 
+{
+	store, remove, addDependency, update, retrieve,
+	storeSuccess, removeSuccess, addDependencySuccess, updateSuccess, retrieveSuccess, 
+	storeFail, removeFail, addDependencyFail, updateFail, retrieveFail;
+
+}

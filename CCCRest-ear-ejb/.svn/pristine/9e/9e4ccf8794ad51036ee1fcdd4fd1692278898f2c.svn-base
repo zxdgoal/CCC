@@ -1,0 +1,32 @@
+package uk.ac.ncl.dao;
+
+import uk.ac.ncl.model.Operation;
+import uk.ac.ncl.status.*;
+import uk.ac.ncl.user.User;
+
+public interface UserManager
+{
+	void store(User user);
+
+	User query(String name);
+
+	void remove(User user);
+
+	void changeRight(User user, Operation operation, RightStatus oldStatus,
+			RightStatus newStatus);
+
+	void changeObligation(User user, Operation operation, ObligationStatus oldStatus,
+			ObligationStatus newStatus);
+
+	void changeProhibition(User user, Operation operation, ProhibitionStatus oldStatus,
+			ProhibitionStatus newStatus);
+   
+	boolean matchRight(User user, Operation operation, RightStatus status);
+	
+	boolean matchObligation(User user, Operation operation, ObligationStatus status);
+	
+	boolean matchProhibition(User user, Operation operation, ProhibitionStatus status);
+	
+	
+
+}

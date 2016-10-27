@@ -1,0 +1,6 @@
+package uk.ac.ncl.status;
+
+public enum EventStatus
+{
+	notExecuted, nonContractCompliant ,succeed, failed
+}

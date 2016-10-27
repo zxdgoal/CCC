@@ -1,0 +1,108 @@
+package uk.ac.ncl.rop;
+
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.state.ROPState;
+
+import java.io.Serializable;
+
+import javax.persistence.AttributeOverrides;
+import javax.persistence.AttributeOverride;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
+
+@MappedSuperclass
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class RopEntity <ropState extends ROPState> implements Serializable
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8495681371100274412L;
+
+	@Id
+	@Column(name = "ID")
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	Long id;
+
+	@Embedded
+	@AttributeOverrides({
+	@AttributeOverride (name="name", column=@Column(name="OPERATION")),
+	@AttributeOverride(name="type", column=@Column(name="TYPE")),
+	@AttributeOverride(name="object", column=@Column(name="OBJECT"))
+	})
+	Operation operation;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "STATE")
+	ropState state;
+
+	public RopEntity()
+	{
+
+	}
+
+	public RopEntity(Operation operation, ropState state)
+	{
+		this.operation = operation;
+		this.state = state;
+	}
+
+	public Operation getOperation()
+	{
+		return operation;
+	}
+
+	public void setOperation(Operation operation)
+	{
+		this.operation = operation;
+	}
+
+	public ROPState getState()
+	{
+		return state;
+	}
+
+	public void setState(ropState state)
+	{
+		this.state = state;
+	}
+
+	public Long getId()
+	{
+		return id;
+	}
+
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+
+	@Override
+	public String toString()
+	{
+		return operation.toString() +" "+ state;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!(obj instanceof RopEntity<?>))
+			return false;
+		RopEntity<?> rop = (RopEntity<?>) obj;
+		return (operation == null ? rop.operation == null : operation
+				.equals(rop.operation))
+				&& (state == null ? rop.state == null : state
+						.equals(rop.state));
+	}
+
+}

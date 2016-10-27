@@ -1,0 +1,46 @@
+package uk.ac.ncl.rop;
+
+import java.io.Serializable;
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import uk.ac.ncl.event.Operation;
+import uk.ac.ncl.state.ROPState.RightState;
+
+@Entity
+@Table(name = "UserRight")
+public class Right extends RopEntity<RightState> implements Serializable
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6031505480282101097L;
+
+	public Right()
+	{
+		super();
+	}
+
+	public Right(String name, Set<Operation> operation, RightState state)
+	{
+		super(name, operation, state);
+	}
+	
+	public Right(String name, Set<Operation> operation)
+	{
+		super(name, operation);
+	}
+
+	public Right(Operation operation, RightState state)
+	{
+		super(operation, state);
+	}
+	
+	public Right(Operation operation)
+	{
+		super(operation);
+	}
+
+}

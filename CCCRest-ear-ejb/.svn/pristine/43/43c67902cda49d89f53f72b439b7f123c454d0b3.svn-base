@@ -1,0 +1,30 @@
+package uk.ac.ncl.rop;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import uk.ac.ncl.resource.Operation;
+import uk.ac.ncl.resource.Status;
+
+@Entity
+@Table(name="UserObligation")
+public class Obligation extends RopEntity implements Serializable 
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6075412688170777269L;
+
+	public Obligation()
+	{
+		super();
+	}
+
+	public Obligation(Operation operation, String name, String type, Status status)
+	{
+		super(operation, name, type, status);
+		// TODO Auto-generated constructor stub
+	}
+}
